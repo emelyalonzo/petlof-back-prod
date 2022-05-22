@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema(
   {
-    from_userId: { type: String, required: true },
-    to_userId: { type: String, required: true },
+    fromUserID: { type: String, required: true },
+    toUserID: { type: String, required: true },
     messsage: { type: String, required: true }
   },
   { timestamps: true }
