@@ -36,8 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
 
 // routes
-// app.use("/users", users);
-// app.use("/messages", messages);
+app.use("/users", users);
+app.use("/messages", messages);
 
 app.use('/', (req, res) => {
   res.send('Hola Alfonsete');
