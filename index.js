@@ -10,11 +10,16 @@ const messages = require("./app/api/routes/message.routes");
 const HTTPSTATUSCODE = require("./app/utils/httpStatusCode");
 const cors = require("cors");
 
+
 const PORT = 3001;
 
 connectDB();
 
 const app = express();
+
+
+//Config app
+app.set("secretKey", "nodeRestApi"); // jwt secret token
 
 //Headers for responses
 app.use((req, res, next) => {

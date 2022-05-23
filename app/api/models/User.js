@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
   {
-      //?Se ha borrado el show_me porque no era necesario
+    //?Se ha borrado el show_me porque no era necesario puesto
+    //? que los intereses del usuario están en gender_interest
     user_id: { type: String},
     email: { type: String, required: true },
     hashed_password: { type: String, required: true },
