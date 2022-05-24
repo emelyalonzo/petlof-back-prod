@@ -1,11 +1,13 @@
 // Import routes
 const express = require("express");
 const logger = require("morgan");
+
 //Require the connect async function towards the database
 const {connectDB} = require("./app/config/database");
+
 //Import routing files
-const users = require("./app/api/routes/user.routes");
-const messages = require("./app/api/routes/message.routes");
+const userRouter = require("./app/api/routes/user.routes");
+const messageRouter = require("./app/api/routes/message.routes");
 
 const HTTPSTATUSCODE = require("./app/utils/httpStatusCode");
 const cors = require("cors");
@@ -31,7 +33,7 @@ app.use((req, res, next) => {
 
 //Cors for React frontend client
 app.use(cors({
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:3001'],
   credentials: true,
 }));
 
@@ -41,8 +43,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
 
 // routes
-app.use("/users", users);
-app.use("/messages", messages);
+app.use("/users", userRouter);
+app.use("/messages", messageRouter);
 
 app.use('/', (req, res) => {
   res.send('Hola Alfonsete');
