@@ -6,7 +6,7 @@ const { createUser, logIn, logout, updateUser} = require("../controllers/user.co
 const { isAuth } = require("../../middlewares/auth.middleware")
 
 userRouter.post("/signup", createUser);
-userRouter.put("/edit", [isAuth], updateUser);
+userRouter.put("/edit", updateUser);
 userRouter.post("/signin", logIn);
 userRouter.post("/logout", [isAuth], logout)
 

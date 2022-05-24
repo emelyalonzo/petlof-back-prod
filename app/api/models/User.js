@@ -13,7 +13,6 @@ const UserSchema = new Schema(
     dob_month: {type: Number},
     dob_year:  {type: Number},
     show_gender: {type: Boolean},
-
     gender_identity:  {type: String},
     gender_interest:  {type: String},
     imageURL:  {type: String}, 
