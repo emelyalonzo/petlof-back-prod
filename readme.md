@@ -2,7 +2,7 @@
     <img src="/" alt="Illustrative picture of the frontend project and images">
 </div>
 
-# 👀 What is PetLof 😻?
+# 👀 What is PetLof?
 
 **PetLof** is a scalable web platform to connect our pets and create new adorable couples. It is made for those daring cats who want to meet new cats and/or have a good time.
 
