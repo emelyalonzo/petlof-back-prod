@@ -149,8 +149,58 @@ const logout = (req, res, next) => {
   }
 };
 
+//Metodo para actualizar algun registro de la base de datos
+const updateUser = async (req, res, next) => {
+    try {
+      const formData = req.body.formData;
+      console.log(`formData del request: ${formData}`)
+      const userIdReq = formData.user_id;
+      console.log(`userIdReq ${userIdReq}`);
+      const userDB = await User.findById(userIdReq);
+        console.log(`userDB: ${userDB}`);
+      if (userIdReq == userDB.user_id) {
+  
+        const userToUpdate = new User();
+
+        if (formData.first_name) userToUpdate.first_name = formData.first_name
+        if (formData.dob_day) userToUpdate.dob_day = formData.dob_day
+        if (formData.dob_month) userToUpdate.dob_month = formData.dob_month
+        if (formData.dob_year) userToUpdate.dob_year = formData.dob_year
+        if (formData.show_gender) userToUpdate.show_gender = formData.show_gender
+        if (formData.gender_identify) userToUpdate.gender_identify = formData.gender_identify
+        if (formData.gender_interest) userToUpdate.gender_interest = formData.gender_interest
+        if (formData.url) userToUpdate.url = formData.url
+        if (formData.about) userToUpdate.about = formData.about
+
+
+        userToUpdate.user_id = userIdReq;
+
+        console.log(`userToUpdate: ${userToUpdate}`)
+        const query = { user_id: userIdReq }
+        console.log(`query: ${query}`)
+        const userUpdated = await User.findByIdAndUpdate(query, userToUpdate);
+        console.log(`userUpdated: ${userUpdated}`);
+        return res.json({
+          status: 200,
+          message: HTTPSTATUSCODE[200],
+          data: { userUpdated }
+        });
+      } else {
+        return res.json({
+          status: 403,
+          message: HTTPSTATUSCODE[403],
+          data: null
+        })
+      }
+  
+    } catch (err) {
+      return next(err);
+    }
+}
+
 module.exports = {
   createUser,
   logIn,
   logout,
+  updateUser
 };
