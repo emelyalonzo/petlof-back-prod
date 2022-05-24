@@ -1,27 +1,21 @@
-// Import routes
 const express = require("express");
 const logger = require("morgan");
 
 //Require the connect async function towards the database
 const {connectDB} = require("./app/config/database");
 
-//Import routing files
+//Import routing
 const userRouter = require("./app/api/routes/user.routes");
 const messageRouter = require("./app/api/routes/message.routes");
 
 const HTTPSTATUSCODE = require("./app/utils/httpStatusCode");
 const cors = require("cors");
 
-
 const PORT = 3001;
 
 connectDB();
 
 const app = express();
-
-
-//Config app
-app.set("secretKey", "nodeRestApi"); // jwt secret token
 
 //Headers for responses
 app.use((req, res, next) => {
@@ -46,10 +40,6 @@ app.use(logger("dev"));
 app.use("/users", userRouter);
 app.use("/messages", messageRouter);
 
-app.use('/', (req, res) => {
-  res.send('Hola Alfonsete');
-});
-
 //for routes undefined
 app.use((req, res, next) => {
   let err = new Error();
@@ -60,7 +50,7 @@ app.use((req, res, next) => {
 
 // handle errors
 app.use((err, req, res, next) => {
-  return res.status(err.status || 500).json(err.message || 'Unexpected error on server');
+  return res.status(err.status || 500).json(err.message || HTTPSTATUSCODE[500]);
 })
 
 app.disable('x-powered-by');
@@ -68,4 +58,3 @@ app.disable('x-powered-by');
 app.listen(PORT, () => {
   console.log(`Listening on http://localhost:3001/`)
 });
-

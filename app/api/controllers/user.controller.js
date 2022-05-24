@@ -1,34 +1,48 @@
 const User = require("../models/User");
+const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const HTTPSTATUSCODE = require("../../utils/httpStatusCode");
 const { v1: uuidv1, v4: uuidv4 } = require("uuid");
 
+dotenv.config();
+
+//TODO: Eliminar console.log
 const createUser = async (req, res, next) => {
+  console.log("Create user function")
   try {
+    console.log("Try inside")
     const newUser = new User(req.body);
-    //! Se hace destructuring del email y la contraseña para poder modificarlos y usarlos para comprobar en la base de datos.
-    const { email, password } = req.body;
-
+    console.log(`newUser: ${newUser}`)
+    //* Se hace destructuring del email y la contraseña para poder modificarlos y usarlos para comprobar en la base de datos.
+    const { email, hashed_password } = req.body;
+    console.log(`email y hashed_password: ${email} ${hashed_password}`);
     const sanitiziedEmail = email.toLowerCase();
-
-    const existingUser = await User.findOne({ sanitiziedEmail });
+    console.log(`email en lower case: ${sanitiziedEmail}`);
+    const existingUser = await User.findOne({ "email" : sanitiziedEmail }); //* Return null if not found
+    console.log(`usuario en la db si existe o null si no:${existingUser}`);
     if (existingUser) {
       return next("User already exists. Please login");
     }
 
     const userUUID = uuidv4();
-    const hashedpassword = await bcrypt.hash(password, 10);
-    //! Es necesario guardar el email en minusculas, la contraseña encriptada y el nuevo ID del usuario.
+    console.log(` uuid ${userUUID}`);
+    const newHashedPassword = await bcrypt.hash(hashed_password, 10);
+    console.log("new hashed password",newHashedPassword)
+    //* Es necesario guardar el email en minusculas, la contraseña encriptada y el nuevo ID del usuario.
     newUser.email = sanitiziedEmail;
-    newUser.hashed_password = hashedpassword;
+    newUser.hashed_password = newHashedPassword;
     newUser.user_id = userUUID;
-
+    console.log("newUser modified",newUser);
     const insertUser = await newUser.save();
 
-    const token = jwt.sign(insertUser, req.app.get("secretKey"), {
-      expiresIn: "1h",
-    });
+    //? Ponemos la contraseña a null para crear el token de sesión por términos de seguridad
+    insertUser.hashed_password = null;
+
+    //* https://github.com/auth0/node-jsonwebtoken
+    const token = jwt.sign({ insertUser, email }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
 
     return res.json({
       status: 201,
@@ -42,18 +56,33 @@ const createUser = async (req, res, next) => {
   }
 };
 
-//TODO: Revisar
+
+//TODO: Eliminar console.log
 const logIn = async (req, res, next) => {
+  console.log("before try catch")
   try {
-    const user = await User.findOne({ email });
-    const { email, password } = req.body;
-
-    const correctPassword = await bcrypt.compare(password, user.hashedpassword);
-
-    if (user & correctPassword) {
-      const token = jwt.sign(user, email, req.app.get("secretKey"), {
+    console.log("inside try catch");
+    //* Datos que manda el usuario (pueden estar mal)
+    let { email, hashed_password } = req.body;
+    email = email.toLowerCase();
+    console.log(`email y contraseña: ${email} ${hashed_password}`);
+    //* Objeto correcto de la base de datos!
+    const user = await User.findOne({ "email" : email }); //* Return null if not found
+    console.log(`existe usuario en db ${user}`)
+    const correctPassword = await bcrypt.compare(hashed_password, user.hashed_password);
+    console.log(`contraseña correcta? ${correctPassword}`);
+    if (user && correctPassword) {
+      //* El usuario y la contraseña son correctos y existen en la base de datos
+      //* https://github.com/auth0/node-jsonwebtoken
+      console.log("antes del token")
+      //? Ponemos la contraseña a null para crear el token de sesión por términos de seguridad
+      user.hashed_password = null;
+      const token = jwt.sign({ user, email }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
+
+      console.log(token);
+  
       return res.json({
         status: 200,
         message: HTTPSTATUSCODE[200],
@@ -73,10 +102,43 @@ const logIn = async (req, res, next) => {
   }
 };
 
-//TODO: Revisar codigo
-// //* LOGOUT FUNCTION
+//?Esta funcion no se usa pues se ha creado una de login que funciona correctamente arriba.
+// const authenticate = async (req, res, next) => {
+//   try {
+//     //Buscamos al user en bd
+//     const userInfo = await User.findOne({ email: req.body.email })
+//     //Comparamos la contraseña
+//     if (bcrypt.compareSync(req.body.password, userInfo.password)) {
+//       //eliminamos la contraseña del usuario
+//       userInfo.password = null
+//       //creamos el token con el id y el name del user
+//       const token = jwt.sign(
+//         {
+//           id: userInfo._id,
+//           name: userInfo.name
+//         },
+//         req.app.get("secretKey"),
+//         { expiresIn: "1h" }
+//       );
+//       //devolvemos el usuario y el token.
+//       return res.json({
+//         status: 200,
+//         message: HTTPSTATUSCODE[200],
+//         data: { user: userInfo, token: token },
+//       });
+//     } else {
+//       return res.json({ status: 400, message: HTTPSTATUSCODE[400], data: null });
+//     }
+//   } catch (err) {
+//     return next(err);
+//   }
+// }
+
+//* LOGOUT FUNCTION (con el resto en la función isAuth de auth.middleware)
 const logout = (req, res, next) => {
+  console.log("outside try catch");
   try {
+    console.log("inside try catch");
     return res.json({
       status: 200,
       message: HTTPSTATUSCODE[200],

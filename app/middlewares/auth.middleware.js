@@ -1,10 +1,17 @@
 //importamos jwt
 const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv");
 const HTTPSTATUSCODE = require("../utils/httpStatusCode")
+
+dotenv.config();
+
+//TODO: Depurar código y console.logs
+
 const isAuth = (req, res, next) => {
     //guardamos en una variable la información de la autorizacion de la cabecera
     //de la petición
     const authorization = req.headers.authorization;
+    console.log(authorization)
     //si no existe autorizacion, no hay token y se retorna error
     if(!authorization){
         return res.json({
@@ -25,10 +32,11 @@ const isAuth = (req, res, next) => {
     }
     //guardamos la info del token en una variable
     const jwtString = splits[1];
+    console.log(jwtString);
     try{
         //verificamos el token y si es ok lo guardamos en una variable
-        var token = jwt.verify(jwtString, req.app.get("secretKey"));
-        
+        var token = jwt.verify(jwtString, process.env.JWT_SECRET);
+        console.log(token)
         //console.log("token tras verify",token)  
     } catch(err){
         return next(err)
@@ -36,8 +44,8 @@ const isAuth = (req, res, next) => {
     //creamos una variable con la informacion que queremos meter en la 
     //peticion
     const authority = {
-        id   : token.id,
-        name: token.name
+        user   : token.user,
+        email: token.email
     }
     //Se la asignamos al request de la peticion
     req.authority = authority
