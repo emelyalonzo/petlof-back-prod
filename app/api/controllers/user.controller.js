@@ -154,7 +154,7 @@ const updateUser = async (req, res, next) => {
     try {
         const formData = req.body.formData;
         const userIdReq = formData.user_id;
-        const user = await User.findOne({ "user_id" : userIdReq });
+        const user = await User.findOne({ user_id : userIdReq });
 
         if (formData.first_name && formData.first_name.length > 0) user.first_name = formData.first_name;
         if (formData.dob_day && formData.dob_day.length > 0 ) user.dob_day = formData.dob_day;
@@ -163,15 +163,11 @@ const updateUser = async (req, res, next) => {
         if (formData.show_gender && formData.show_gender.length > 0 ) user.show_gender = formData.show_gender;
         if (formData.gender_identify && formData.gender_identify.length > 0 ) user.gender_identify = formData.gender_identify;
         if (formData.gender_interest && formData.gender_interest.length > 0 ) user.gender_interest = formData.gender_interest;
-        if (formData.url && formData.url.length > 0 ) user.url = formData.url;
+        if (formData.imageURL && formData.imageURL.length > 0 ) user.imageURL = formData.imageURL;
         if (formData.about && formData.about.length > 0 ) user.about = formData.about;
 
-        const userDB = await User.findOneAndUpdate({ "user_id" : userIdReq }, {
-          ...user,
-          new: true,
-          returnOriginal: false
-        });
-        
+        const userDB = await User.findOneAndUpdate({ user_id : userIdReq }, { ...user} , {new : true });
+
         //*Delete the password so it wont be visible on the json sent
         userDB.hashed_password = null
 
