@@ -192,9 +192,39 @@ const updateUser = async (req, res, next) => {
     }
 }
 
+const getOneUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    console.log(req.params);
+    const user = await User.findOne({user_id : id});
+    //*DEBUG
+    console.log(user);
+    
+    if (user) {
+        //*Delete the password so it wont be visible on the json sent
+        user.hashed_password = null
+        return res.json({
+        status: 200,
+        message: HTTPSTATUSCODE[200],
+        data: { user }
+        });
+    } else {
+        return res.json({
+        status: 403,
+        message: HTTPSTATUSCODE[403],
+        data: null
+        })
+    }
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   createUser,
   logIn,
   logout,
-  updateUser
+  updateUser,
+  getOneUser
 };
