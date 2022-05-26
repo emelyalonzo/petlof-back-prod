@@ -2,6 +2,7 @@ const User = require("../models/User");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cors = require("cors"); 
 const HTTPSTATUSCODE = require("../../utils/httpStatusCode");
 const { v1: uuidv1, v4: uuidv4 } = require("uuid");
 
@@ -9,16 +10,11 @@ dotenv.config();
 
 //TODO: Eliminar console.log
 const createUser = async (req, res, next) => {
-  console.log("Create user function")
   try {
-    console.log("Try inside")
     const newUser = new User(req.body);
     console.log(`newUser: ${newUser}`)
-    //* Se hace destructuring del email y la contraseña para poder modificarlos y usarlos para comprobar en la base de datos.
     const { email, hashed_password } = req.body;
-    console.log(`email y hashed_password: ${email} ${hashed_password}`);
     const sanitiziedEmail = email.toLowerCase();
-    console.log(`email en lower case: ${sanitiziedEmail}`);
     const existingUser = await User.findOne({ "email" : sanitiziedEmail }); //* Return null if not found
     console.log(`usuario en la db si existe o null si no:${existingUser}`);
     if (existingUser) {
