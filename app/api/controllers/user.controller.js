@@ -6,6 +6,9 @@ const cors = require("cors");
 const HTTPSTATUSCODE = require("../../utils/httpStatusCode");
 const { v1: uuidv1, v4: uuidv4 } = require("uuid");
 
+
+
+
 dotenv.config();
 
 //TODO: Eliminar console.log
@@ -43,9 +46,8 @@ const createUser = async (req, res, next) => {
     return res.json({
       status: 201,
       message: HTTPSTATUSCODE[201],
-      data: token,
-      user_id: userUUID,
-      email: sanitiziedEmail,
+      token: token,
+      userId: userUUID
     });
   } catch (err) {
     return next(err);
@@ -77,14 +79,14 @@ const logIn = async (req, res, next) => {
         expiresIn: "1h",
       });
 
+      
       console.log(token);
   
       return res.json({
         status: 200,
         message: HTTPSTATUSCODE[200],
-        data: token,
-        user_id: user.user_id,
-        email: user.email,
+        token: token,
+        userId: user.user_id
       });
     } else {
       return res.json({
@@ -97,38 +99,6 @@ const logIn = async (req, res, next) => {
     return next(err);
   }
 };
-
-//?Esta funcion no se usa pues se ha creado una de login que funciona correctamente arriba.
-// const authenticate = async (req, res, next) => {
-//   try {
-//     //Buscamos al user en bd
-//     const userInfo = await User.findOne({ email: req.body.email })
-//     //Comparamos la contraseña
-//     if (bcrypt.compareSync(req.body.password, userInfo.password)) {
-//       //eliminamos la contraseña del usuario
-//       userInfo.password = null
-//       //creamos el token con el id y el name del user
-//       const token = jwt.sign(
-//         {
-//           id: userInfo._id,
-//           name: userInfo.name
-//         },
-//         req.app.get("secretKey"),
-//         { expiresIn: "1h" }
-//       );
-//       //devolvemos el usuario y el token.
-//       return res.json({
-//         status: 200,
-//         message: HTTPSTATUSCODE[200],
-//         data: { user: userInfo, token: token },
-//       });
-//     } else {
-//       return res.json({ status: 400, message: HTTPSTATUSCODE[400], data: null });
-//     }
-//   } catch (err) {
-//     return next(err);
-//   }
-// }
 
 //* LOGOUT FUNCTION (con el resto en la función isAuth de auth.middleware)
 const logout = (req, res, next) => {
@@ -149,26 +119,24 @@ const logout = (req, res, next) => {
 const updateUser = async (req, res, next) => {
     try {
         const formData = req.body.formData;
+        console.log(formData);
+        console.log(formData.gender_identity)
         const userIdReq = formData.user_id;
         const user = await User.findOne({ user_id : userIdReq });
-
-        if (formData.first_name && formData.first_name.length > 0) user.first_name = formData.first_name;
-        if (formData.dob_day && formData.dob_day.length > 0 ) user.dob_day = formData.dob_day;
-        if (formData.dob_month && formData.dob_month.length > 0 ) user.dob_month = formData.dob_month;
-        if (formData.dob_year && formData.dob_year.length > 0 ) user.dob_year = formData.dob_year;
-        if (formData.show_gender && formData.show_gender.length > 0 ) user.show_gender = formData.show_gender;
-        if (formData.gender_identify && formData.gender_identify.length > 0 ) user.gender_identify = formData.gender_identify;
-        if (formData.gender_interest && formData.gender_interest.length > 0 ) user.gender_interest = formData.gender_interest;
-        if (formData.imageURL && formData.imageURL.length > 0 ) user.imageURL = formData.imageURL;
-        if (formData.about && formData.about.length > 0 ) user.about = formData.about;
-
-        const userDB = await User.findOneAndUpdate({ user_id : userIdReq }, { ...user} , {new : true });
-
+        console.log(formData.gender_identity);
+        const userDB = await User.findOneAndUpdate({ user_id : userIdReq }, { 
+          "first_name": formData.first_name,
+          "dob_day": formData.dob_day,
+          "dob_month": formData.dob_month,
+          "dob_year": formData.dob_year,
+          "gender_identity": formData.gender_identity,
+          "gender_interest": formData.gender_interest,
+          "imageURL":formData.imageURL,
+          "about": formData.about
+        } , {new : true });
+        console.log(userDB)
         //*Delete the password so it wont be visible on the json sent
         userDB.hashed_password = null
-
-        //*DEBUG
-        console.log(userDB);
         
         if (userDB) {
             return res.json({

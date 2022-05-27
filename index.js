@@ -1,6 +1,5 @@
 const express = require("express");
 const logger = require("morgan");
-
 //Require the connect async function towards the database
 const {connectDB} = require("./app/config/database");
 
@@ -24,6 +23,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
+
 
 //Cors for React frontend client
 app.use(cors({
