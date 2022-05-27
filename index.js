@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 
 //Cors for React frontend client
 app.use(cors({
-  origin: ['http://localhost:3001'],
+  origin: ['http://localhost:3000'],
   credentials: true,
 }));
 

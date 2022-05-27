@@ -73,7 +73,8 @@ app.put('/user', async (req, res) => {
 
         const query = { user_id: formData.user_id }
         const updateDocument = {
-            $set: {
+            $set:
+             {
                 first_name: formData.first_name,
                 dob_day: formData.dob_day,
                 dob_month: formData.dob_month,
@@ -86,7 +87,7 @@ app.put('/user', async (req, res) => {
                 matches: formData.matches
             }
         }
-        const insetedUser = await users.updateOne(query, updateDocument)
+        const insertedUser = await users.updateOne(query, updateDocument)
         res.send(insertedUser)
     } finally {
         await client.close()
