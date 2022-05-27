@@ -185,10 +185,39 @@ const getOneUser = async (req, res, next) => {
   }
 }
 
+const getGendersUsers = async (req, res, next) => {
+  try {
+    const { man } = req.params;
+    console.log( gender );
+    console.log(req.params);
+    const user = await User.find({ gender_interest : gender });
+    console.log(user);
+
+    if (user) {
+      user.hashed_password = null
+      return res.json({
+        status: 200,
+        message: HTTPSTATUSCODE[200],
+        data: { user }
+    });
+    } else {
+      return res.json({
+        status: 403,
+        message: HTTPSTATUSCODE[403],
+        data: null
+      })
+    }
+
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   createUser,
   logIn,
   logout,
   updateUser,
-  getOneUser
+  getOneUser, 
+  getGendersUsers
 };
