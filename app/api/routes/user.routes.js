@@ -7,8 +7,7 @@ const { isAuth } = require("../../middlewares/auth.middleware")
 
 userRouter.post("/signup", createUser);
 userRouter.put("/edit", updateUser);
-userRouter.get("/:id", getOneUser);
-userRouter.get("/:gendered-users", getGendersUsers);
+userRouter.get("/", getOneUser);
 userRouter.post("/signin", logIn);
 userRouter.post("/logout", [isAuth], logout);
 

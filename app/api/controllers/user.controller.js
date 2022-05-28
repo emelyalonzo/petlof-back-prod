@@ -158,9 +158,9 @@ const updateUser = async (req, res, next) => {
 
 const getOneUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    console.log(req.query)
+    const id  = req.query.id;
     console.log(id);
-    console.log(req.params);
     const user = await User.findOne({user_id : id});
     //*DEBUG
     console.log(user);
@@ -187,18 +187,20 @@ const getOneUser = async (req, res, next) => {
 
 const getGendersUsers = async (req, res, next) => {
   try {
-    const { man } = req.params;
-    console.log( gender );
-    console.log(req.params);
-    const user = await User.find({ gender_interest : gender });
-    console.log(user);
+    console.log(req.query)
+    const gender_interest = req.query.gender_interest;
+    console.log( gender_interest )
+    const users = await User.find({ gender_interest : gender_interest });
+    console.log(users);
 
-    if (user) {
-      user.hashed_password = null
+    if (users) {
+      for ( let user of users) {
+        user.hashed_password = null
+      }
       return res.json({
         status: 200,
         message: HTTPSTATUSCODE[200],
-        data: { user }
+        data: { users }
     });
     } else {
       return res.json({
@@ -212,6 +214,8 @@ const getGendersUsers = async (req, res, next) => {
     return next(err);
   }
 }
+
+
 
 module.exports = {
   createUser,

@@ -4,6 +4,7 @@ const logger = require("morgan");
 const {connectDB} = require("./app/config/database");
 
 //Import routing
+const genderRouter = require("./app/api/routes/gender.routes")
 const userRouter = require("./app/api/routes/user.routes");
 const messageRouter = require("./app/api/routes/message.routes");
 
@@ -37,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
 
 // routes
+app.use("/gender", genderRouter);
 app.use("/users", userRouter);
 app.use("/messages", messageRouter);
 
