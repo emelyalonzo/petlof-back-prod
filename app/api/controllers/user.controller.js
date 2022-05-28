@@ -215,7 +215,46 @@ const getGendersUsers = async (req, res, next) => {
   }
 }
 
+const addMatch = async (req, res, next) => {
+  try {
+    const {userId, matchedUserId} = req.body;
 
+    const user = await User.findOne({user_id: userId});
+
+    console.log("user who made the match", user);
+
+    const matchedUser = await User.findOne({user_id: matchedUserId});
+
+    console.log("matchedUserObject", matchedUser);
+
+    console.log("matches of user who made the match BEFORE", user.matches);
+
+    user.matches.push(matchedUser);
+
+    console.log("matches of user who made the match AFTER", user.matches);
+
+    const userDB = await User.findOneAndUpdate({ user_id : userId }, ...user , {new : true });
+
+    console.log("user updated", userDB);
+
+    if (userDB) {
+      return res.json({
+        status: 200,
+        message: HTTPSTATUSCODE[200],
+        data: { userDB }
+    });
+    } else {
+      return res.json({
+        status: 403,
+        message: HTTPSTATUSCODE[403],
+        data: null
+      })
+    }
+
+  } catch (err) {
+    return next(err);
+  }
+}
 
 module.exports = {
   createUser,
@@ -223,5 +262,6 @@ module.exports = {
   logout,
   updateUser,
   getOneUser, 
-  getGendersUsers
+  getGendersUsers,
+  addMatch
 };
