@@ -38,6 +38,8 @@ const createUser = async (req, res, next) => {
     //? Ponemos la contraseña a null para crear el token de sesión por términos de seguridad
     insertUser.hashed_password = null;
 
+    const id = insertUser._id;
+
     //* https://github.com/auth0/node-jsonwebtoken
     const token = jwt.sign({ insertUser, email }, process.env.JWT_SECRET, {
     expiresIn: "1h",
@@ -47,7 +49,8 @@ const createUser = async (req, res, next) => {
       status: 201,
       message: HTTPSTATUSCODE[201],
       token: token,
-      userId: userUUID
+      userId: userUUID,
+      id: id
     });
   } catch (err) {
     return next(err);
@@ -86,7 +89,8 @@ const logIn = async (req, res, next) => {
         status: 200,
         message: HTTPSTATUSCODE[200],
         token: token,
-        userId: user.user_id
+        userId: user.user_id,
+        id: user._id
       });
     } else {
       return res.json({
@@ -221,25 +225,21 @@ const addMatch = async (req, res, next) => {
 
     const user = await User.findOne({user_id: userId});
 
-    console.log("user who made the match", user);
+    // console.log("user who made the match", user);
 
     const matchedUser = await User.findOne({user_id: matchedUserId});
 
-    console.log("matchedUserObject", matchedUser);
+    // console.log("matchedUserObject", matchedUser);
 
-    console.log("matches of user who made the match BEFORE", user.matches);
+    // console.log("matches of user who made the match BEFORE", user.matches);
 
-    // let matchesUser = user.matches;
-    // matchesUser.push(matchedUser);
-    // console.log(matchedUser);
-    // user.matches = matchesUser;
-    console.log("matches of user" , user.matches)
+    user.matches.push(matchedUser);
 
-    console.log("matches of user who made the match AFTER", user.matches);
+    // console.log("matches of user who made the match AFTER", user.matches);
 
-    const userDB = await User.findOneAndUpdate({ user_id : userId }, ...user , {new : true });
+    const userDB = await User.findOneAndUpdate({ user_id : userId }, {"matches": user.matches} , {new : true }).populate("matches");
 
-    console.log("user updated", userDB);
+    // console.log("user updated", userDB);
 
     if (userDB) {
       return res.json({
@@ -260,6 +260,38 @@ const addMatch = async (req, res, next) => {
   }
 }
 
+const getMatches = async (req, res, next) => {
+  try {
+    const userIds = JSON.parse(req.query.userIds);
+    console.log("userIds array desde el front", userIds); 
+
+    console.log("tipo de userIds", typeof userIds)
+
+    const foundUsers = await User.find({
+      '_id': { $in: userIds}});
+
+    console.log("foundUsers:",foundUsers);
+
+    if (foundUsers) {
+      return res.json({
+        status: 200,
+        message: HTTPSTATUSCODE[200],
+        data: { foundUsers }
+    });
+    } else {
+      return res.json({
+        status: 403,
+        message: HTTPSTATUSCODE[403],
+        data: null
+      })
+    }
+
+  } catch (err) {
+    return next(err);
+  }
+
+}
+
 module.exports = {
   createUser,
   logIn,
@@ -267,5 +299,6 @@ module.exports = {
   updateUser,
   getOneUser, 
   getGendersUsers,
-  addMatch
+  addMatch, 
+  getMatches
 };
