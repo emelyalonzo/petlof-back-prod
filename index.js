@@ -1,11 +1,13 @@
-// Import routes
 const express = require("express");
 const logger = require("morgan");
 //Require the connect async function towards the database
 const {connectDB} = require("./app/config/database");
-//Import routing files
-const users = require("./app/api/routes/user.routes");
-const messages = require("./app/api/routes/message.routes");
+
+//Import routing
+const genderRouter = require("./app/api/routes/gender.routes")
+const userRouter = require("./app/api/routes/user.routes");
+const messageRouter = require("./app/api/routes/message.routes");
+const matchRouter = require("./app/api/routes/match.routes");
 
 const HTTPSTATUSCODE = require("./app/utils/httpStatusCode");
 const cors = require("cors");
@@ -24,6 +26,7 @@ app.use((req, res, next) => {
   next();
 });
 
+
 //Cors for React frontend client
 app.use(cors({
   origin: ['http://localhost:3000'],
@@ -36,13 +39,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
 
 // routes
-// app.use("/users", users);
-// app.use("/messages", messages);
-
-app.use('/', (req, res) => {
-  res.send('Hola Alfonsete');
-});
-
+app.use("/gender", genderRouter);
+app.use("/users", userRouter);
+app.use("/messages", messageRouter);
+app.use("/match", matchRouter);
 //for routes undefined
 app.use((req, res, next) => {
   let err = new Error();
@@ -53,7 +53,7 @@ app.use((req, res, next) => {
 
 // handle errors
 app.use((err, req, res, next) => {
-  return res.status(err.status || 500).json(err.message || 'Unexpected error on server');
+  return res.status(err.status || 500).json(err.message || HTTPSTATUSCODE[500]);
 })
 
 app.disable('x-powered-by');
@@ -61,4 +61,3 @@ app.disable('x-powered-by');
 app.listen(PORT, () => {
   console.log(`Listening on http://localhost:3001/`)
 });
-
