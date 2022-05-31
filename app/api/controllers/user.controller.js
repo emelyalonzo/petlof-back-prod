@@ -196,9 +196,9 @@ const getOneUser = async (req, res, next) => {
 const getGendersUsers = async (req, res, next) => {
   try {
     console.log(req.query)
-    const gender_interest = req.query.gender_interest;
-    console.log( gender_interest )
-    const users = await User.find({ gender_interest : gender_interest });
+    const gender_identity = req.query.gender_identity;
+    console.log( gender_identity )
+    const users = await User.find({ gender_identity : gender_identity });
     console.log(users);
 
     if (users) {
