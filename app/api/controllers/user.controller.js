@@ -126,8 +126,8 @@ const logout = (req, res, next) => {
 //Metodo para actualizar algun registro de la base de datos
 const updateUser = async (req, res, next) => {
     try {
-        const formData = req.body.formData;
-        console.log(formData);
+        const formData = req.body;
+        console.log("prueba signup", req.body);
         console.log(formData.gender_identity)
         const userIdReq = formData.user_id;
         const user = await User.findOne({ user_id : userIdReq });
