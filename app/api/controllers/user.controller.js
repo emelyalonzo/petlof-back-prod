@@ -147,17 +147,9 @@ const updateUser = async (req, res, next) => {
         userDB.hashed_password = null
         
         if (userDB) {
-            return res.json({
-            status: 200,
-            message: HTTPSTATUSCODE[200],
-            data: { userDB }
-            });
+            return res.json(userDB);
         } else {
-            return res.json({
-            status: 403,
-            message: HTTPSTATUSCODE[403],
-            data: null
-            })
+            return res.json( null)
         }
     } catch (err) {
       return next(err);
