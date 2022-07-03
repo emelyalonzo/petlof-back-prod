@@ -21,11 +21,7 @@ const createUser = async (req, res, next) => {
     const existingUser = await User.findOne({ "email" : sanitiziedEmail }); //* Return null if not found
     console.log(`usuario en la db si existe o null si no:${existingUser}`);
     if (existingUser) {
-      return res.json({
-        status: 400,
-        message: "User already exists. Please login",
-      });
-      
+      return res.status(400).send("User already exists. Please login");
     }
 
     const userUUID = uuidv4();
